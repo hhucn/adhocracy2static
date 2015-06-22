@@ -2,22 +2,27 @@ import re, urllib.request
 from urllib.parse import urljoin
 
  
-b = "https://normsetzung.cs.uni-duesseldorf.de"
-s = urllib.request.urlopen(b).read().decode('utf-8')
- 
-def get_a(b, s):
-    for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
-        yield urljoin(b, m.group(1)[1:-1])
- 
-s= list(get_a(b, s))
-#print(s)
-x=0
-file = open("test.txt", "w")
+base_url = "https://normsetzung.cs.uni-duesseldorf.de"
 
-while x < len(s):   
-        site=urllib.request.urlopen(s[x])
-        a=site.read()
-        file.write(str(a))
-        x+=1
-file.close()
- 
+def main():
+    s = urllib.request.urlopen(base_url).read().decode('utf-8')
+    links = list(find_links(base_url, s))
+    print(links)
+    print (len(links))
+
+    for link in links:
+        
+        with open("test.txt", "wb") as f:
+         
+            site=urllib.request.urlopen(link)
+            site_content = site.read()
+            f.write(site_content)
+            
+      
+  
+def find_links(base_url, s):
+    for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
+        yield urljoin(base_url, m.group(1)[1:-1])
+
+if __name__ == "__main__": 
+    main()
