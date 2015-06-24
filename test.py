@@ -9,11 +9,13 @@ def main():
     links = list(find_links(base_url, s))
     print(links)
     print (len(links))
-
+    del(links[13])
     for link in links:
+        x=0
+        dateiname= "adhocracy2static"+str(x)
+        x+=1
+        with open(dateiname, "wb") as f:
         
-        with open("test.txt", "wb") as f:
-         
             site=urllib.request.urlopen(link)
             site_content = site.read()
             f.write(site_content)
