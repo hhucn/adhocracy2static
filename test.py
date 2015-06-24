@@ -5,21 +5,21 @@ from urllib.parse import urljoin
 base_url = "https://normsetzung.cs.uni-duesseldorf.de"
 
 def main():
+    x=0
     s = urllib.request.urlopen(base_url).read().decode('utf-8')
     links = list(find_links(base_url, s))
+    links.remove('mailto:normsetzung-support@cs.uni-duesseldorf.de')
+    links.remove(links[9])
     print(links)
     print (len(links))
-    del(links[13])
-    for link in links:
-        x=0
-        dateiname= "adhocracy2static"+str(x)
-        x+=1
-        with open(dateiname, "wb") as f:
-        
-            site=urllib.request.urlopen(link)
-            site_content = site.read()
-            f.write(site_content)
-            
+    for link in links: 
+            dateiname= "adhocracy2static"+str(x)
+            with open(dateiname+".txt", "wb") as f:
+                site=urllib.request.urlopen(link)
+                site_content = site.read()
+                f.write(site_content)
+                x+=1
+                
       
   
 def find_links(base_url, s):
