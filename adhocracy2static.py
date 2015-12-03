@@ -1,10 +1,15 @@
 import re, urllib.request
 from urllib.parse import urljoin
+import os
 
 
 base_url = "https://normsetzung.cs.uni-duesseldorf.de"
+targetDirectory = "page"
 
 def main():
+    if not os.path.exists(targetDirectory):
+        os.mkdir(targetDirectory)
+
     x=0
     s = urllib.request.urlopen(base_url).read().decode('utf-8')
     links = list(find_links(base_url, s))
@@ -17,10 +22,11 @@ def main():
 
     for link in links:
             dateiname = link.replace("/","")
-            dateiname = dateiname.replace("https", "")
-            dateiname = dateiname.replace("http", "")
+            dateiname = dateiname.replace("https://", "")
+            dateiname = dateiname.replace("http://", "")
 
-            with open(dateiname+".txt", "wb") as f:
+            path = os.path.join(targetDirectory, dateiname + ".txt")
+            with open(path, "wb") as f:
                 site=urllib.request.urlopen(link)
                 site_content = site.read()
                 f.write(site_content)
