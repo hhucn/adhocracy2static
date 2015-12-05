@@ -26,11 +26,15 @@ def main():
             dateiname = dateiname.replace("http://", "")
 
             path = os.path.join(targetDirectory, dateiname + ".txt")
-            with open(path, "wb") as f:
-                site=urllib.request.urlopen(link)
-                site_content = site.read()
-                f.write(site_content)
-                x+=1
+
+            try:
+                site = urllib.request.urlopen(link)
+                with open(path, "wb") as f:
+                    site_content = site.read()
+                    f.write(site_content)
+                    x+=1
+            except urllib.error.HTTPError as err:
+                print("Code %s Error %s" % (link, err))
 
 def find_links(base_url, s):
     for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
