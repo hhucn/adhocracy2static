@@ -13,7 +13,6 @@ def main():
     x=0
     s = urllib.request.urlopen(base_url).read().decode('utf-8')
     links = list(find_links(base_url, s))
-    links.remove('mailto:normsetzung-support@cs.uni-duesseldorf.de')
     links.remove(links[9])
     links.remove(links[0])
     links.remove(links[0])
