@@ -21,6 +21,7 @@ def main():
     print (len(links))
 
     for link in links:
+        if not link[:7] == "mailto:":
             dateiname = link.replace("/","")
             dateiname = dateiname.replace("https://", "")
             dateiname = dateiname.replace("http://", "")
