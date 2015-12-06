@@ -34,7 +34,7 @@ def main():
                     f.write(site_content)
                     x+=1
             except urllib.error.HTTPError as err:
-                print("Code %s Error %s" % (link, err))
+                print("Page %s, Error %s" % (link, err))
 
 def find_links(base_url, s):
     for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
