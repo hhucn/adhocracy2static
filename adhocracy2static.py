@@ -10,14 +10,15 @@ def main():
     if not os.path.exists(targetDirectory):
         os.mkdir(targetDirectory)
 
-    x=0
+    crawledPages = 0
+    failedPages = 0
+
     s = urllib.request.urlopen(base_url).read().decode('utf-8')
     links = list(find_links(base_url, s))
     links.remove(links[9])
     links.remove(links[0])
     links.remove(links[0])
     print(links)
-    print (len(links))
 
     for link in links:
         if not link[:7] == "mailto:":
@@ -32,9 +33,12 @@ def main():
                 with open(path, "wb") as f:
                     site_content = site.read()
                     f.write(site_content)
-                    x+=1
+                    crawledPages += 1
             except urllib.error.HTTPError as err:
                 print("Page %s, Error %s" % (link, err))
+                failedPages += 1
+
+    print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
 
 def find_links(base_url, s):
     for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
