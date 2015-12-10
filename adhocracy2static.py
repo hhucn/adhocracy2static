@@ -13,11 +13,19 @@ def main():
     crawledPages = 0
     failedPages = 0
 
+    deltaCrawledPages, deltaFailedPages = crawl(base_url)
+    crawledPages += deltaCrawledPages
+    failedPages += deltaFailedPages
+
+    print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
+
+
+def crawl(url):
+    crawledPages = 0
+    failedPages = 0
+
     s = urllib.request.urlopen(base_url).read().decode('utf-8')
     links = list(find_links(base_url, s))
-    links.remove(links[9])
-    links.remove(links[0])
-    links.remove(links[0])
     print(links)
 
     for link in links:
@@ -38,7 +46,8 @@ def main():
                 print("Page %s, Error %s" % (link, err))
                 failedPages += 1
 
-    print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
+    return (crawledPages, failedPages)
+
 
 def find_links(base_url, s):
     for m in re.finditer(r"""(?is)<a[^>]*href[\s\n]*=[\s\n]*("[^"]*"|'[^']*')""", s):
