@@ -12,41 +12,43 @@ def main():
 
     crawledPages = 0
     failedPages = 0
+    pages = [base_url]
 
-    deltaCrawledPages, deltaFailedPages = crawl(base_url)
-    crawledPages += deltaCrawledPages
-    failedPages += deltaFailedPages
+    for page in pages:
+        print("Crawling %s" % page)
+
+        success, deltaNewURLs = crawl(page)
+
+        if success:
+            crawledPages += 1
+        else:
+            failedPages += 1
+
+        for newURL in deltaNewURLs:
+            if not newURL in pages:
+                pages.append(newURL)
 
     print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
 
 
 def crawl(url):
-    crawledPages = 0
-    failedPages = 0
+    try:
+        content = urllib.request.urlopen(url).read().decode('utf-8')
+        foundURLs = list(find_links(url, content))
 
-    s = urllib.request.urlopen(base_url).read().decode('utf-8')
-    links = list(find_links(base_url, s))
-    print(links)
+        dateiname = url.replace("/","")
+        dateiname = dateiname.replace("https://", "")
+        dateiname = dateiname.replace("http://", "")
+        dateiname += ".txt"
+        path = os.path.join(targetDirectory, dateiname)
 
-    for link in links:
-        if not link[:7] == "mailto:":
-            dateiname = link.replace("/","")
-            dateiname = dateiname.replace("https://", "")
-            dateiname = dateiname.replace("http://", "")
+        with open(path, "wb") as f:
+            f.write(content.encode("utf-8"))
 
-            path = os.path.join(targetDirectory, dateiname + ".txt")
-
-            try:
-                site = urllib.request.urlopen(link)
-                with open(path, "wb") as f:
-                    site_content = site.read()
-                    f.write(site_content)
-                    crawledPages += 1
-            except urllib.error.HTTPError as err:
-                print("Page %s, Error %s" % (link, err))
-                failedPages += 1
-
-    return (crawledPages, failedPages)
+        return(True, foundURLs)
+    except urllib.error.HTTPError as err:
+        print("Page %s, Error %s" % (url, err))
+        return(False, [])
 
 
 def find_links(base_url, s):
