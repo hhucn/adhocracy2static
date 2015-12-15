@@ -26,7 +26,10 @@ def main():
 
         for newURL in deltaNewURLs:
             if not newURL in pages:
-                pages.append(newURL)
+                if newURL[:4] == "http":
+                    # includes http:, https:
+                    # excludes mailto: and javascript:
+                    pages.append(newURL)
 
     print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
 
