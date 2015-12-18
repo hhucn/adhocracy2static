@@ -4,6 +4,7 @@ import os
 
 
 base_url = "https://normsetzung.cs.uni-duesseldorf.de"
+base_domain = "normsetzung.cs.uni-duesseldorf.de"
 targetDirectory = "page"
 
 def main():
@@ -25,7 +26,7 @@ def main():
             failedPages += 1
 
         for newURL in deltaNewURLs:
-            if not newURL in pages:
+            if not newURL in pages and urlInDomainNamespace(newURL):
                 if newURL[:4] == "http":
                     # includes http:, https:
                     # excludes mailto: and javascript:
@@ -39,9 +40,8 @@ def crawl(url):
         content = urllib.request.urlopen(url).read().decode('utf-8')
         foundURLs = list(find_links(url, content))
 
-        dateiname = url.replace("/","")
-        dateiname = dateiname.replace("https://", "")
-        dateiname = dateiname.replace("http://", "")
+        dateiname = stripProtocol(url)
+        dateiname = dateiname.replace("/","")
         dateiname += ".txt"
         path = os.path.join(targetDirectory, dateiname)
 
@@ -52,6 +52,25 @@ def crawl(url):
     except urllib.error.HTTPError as err:
         print("Page %s, Error %s" % (url, err))
         return(False, [])
+
+
+def urlInDomainNamespace(url):
+    url = stripProtocol(url)
+
+    if "/" in url:
+        domain = url[:url.index("/")]
+    else:
+        domain = url
+
+    if domain == base_domain:
+        return True
+    else:
+        print("Avoid URL %s" % url)
+        return False
+
+
+def stripProtocol(url):
+    return url.replace("https://", "").replace("http://", "")
 
 
 def find_links(base_url, s):
