@@ -30,15 +30,20 @@ def main():
                 if newURL[:4] == "http":
                     # includes http:, https:
                     # excludes mailto: and javascript:
-                    pages.append(percentEncodeURL(newURL))
+                    pages.append(urllib.parse.quote(newURL, "!*'();:@&=+$,/?%#[]-_.~"))
 
     print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
 
 
 def crawl(url):
     try:
-        content = urllib.request.urlopen(url).read().decode('utf-8')
-        foundURLs = list(find_links(url, content))
+        connection = urllib.request.urlopen(url)
+        if "text/html" in connection.getheader("Content-Type"):
+            content = connection.read().decode('utf-8')
+            foundURLs = list(find_links(url, content))
+        else:
+            content = connection.read()
+            foundURLs = []
 
         dateiname = stripProtocol(url)
         dateiname = dateiname.replace("/","")
@@ -52,13 +57,6 @@ def crawl(url):
     except urllib.error.HTTPError as err:
         print("Page %s, Error %s" % (url, err))
         return(False, [])
-
-
-def percentEncodeURL(url):
-    url = url.replace("ä", "%C3%A4")
-    url = url.replace("ö", "%C3%B6")
-    url = url.replace("ü", "%C3%BC")
-    return url
 
 
 def urlInDomainNamespace(url):
