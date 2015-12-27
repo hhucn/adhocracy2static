@@ -30,7 +30,7 @@ def main():
                 if newURL[:4] == "http":
                     # includes http:, https:
                     # excludes mailto: and javascript:
-                    pages.append(newURL)
+                    pages.append(percentEncodeURL(newURL))
 
     print("%i pages crawled (%i failed)" % (crawledPages, failedPages))
 
@@ -52,6 +52,13 @@ def crawl(url):
     except urllib.error.HTTPError as err:
         print("Page %s, Error %s" % (url, err))
         return(False, [])
+
+
+def percentEncodeURL(url):
+    url = url.replace("ä", "%C3%A4")
+    url = url.replace("ö", "%C3%B6")
+    url = url.replace("ü", "%C3%BC")
+    return url
 
 
 def urlInDomainNamespace(url):
