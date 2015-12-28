@@ -1,6 +1,7 @@
 import re, urllib.request
 from urllib.parse import urljoin
 import os
+import hashlib
 
 
 base_url = "https://normsetzung.cs.uni-duesseldorf.de"
@@ -48,10 +49,18 @@ def crawl(url):
         dateiname = stripProtocol(url)
         dateiname = dateiname.replace("/","")
         dateiname += ".txt"
+
+        if len(dateiname) > 255:
+            shaname = hashlib.sha256(bytes(dateiname, "utf-8")).hexdigest()
+            print("Pathlength > 255: %s, using %s" % (dateiname, shaname))
+            dateiname = shaname
+
         path = os.path.join(targetDirectory, dateiname)
 
         with open(path, "wb") as f:
-            f.write(content.encode("utf-8"))
+            if type(content) is str:
+                content = content.encode("utf-8")
+            f.write(content)
 
         return(True, foundURLs)
     except urllib.error.HTTPError as err:
