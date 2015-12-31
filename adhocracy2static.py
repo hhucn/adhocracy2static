@@ -8,7 +8,33 @@ base_url = "https://normsetzung.cs.uni-duesseldorf.de"
 base_domain = "normsetzung.cs.uni-duesseldorf.de"
 targetDirectory = "page"
 
+
+class suppressRedirectHandler(urllib.request.HTTPRedirectHandler):
+    # see comments in main()
+    # code taken from urllib.request.HTTPRedirectHandler.redirect_request
+
+    def redirect_request(self, req, fp, code, msg, headers, newURL):
+        oldHeaders = ("content-length", "content-type")
+        newHeaders = dict((k, v) for k, v in req.headers.items()
+                          if k.lower() not in oldHeaders)
+
+        quotedURL = urllib.parse.quote(newURL, "!*'();:@&=+$,/?%#[]-_.~")
+        print("Redirect to %s" % quotedURL)
+
+        return urllib.request.Request(quotedURL,
+                       headers=newHeaders,
+                       origin_req_host=req.origin_req_host,
+                       unverifiable=True)
+
+
 def main():
+    # Inject a custom handler into the urllib handler queue.
+    # There is no quick way to interrupt urllib from following redirects.
+    # This is a problem here because urllib needs ASCII URLs, but the target
+    # URL (the one redirected to) may contain UTF-8 chars.
+    opener = urllib.request.build_opener(suppressRedirectHandler)
+    urllib.request.install_opener(opener)
+
     if not os.path.exists(targetDirectory):
         os.mkdir(targetDirectory)
 
