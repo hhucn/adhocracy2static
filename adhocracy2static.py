@@ -21,10 +21,13 @@ class suppressRedirectHandler(urllib.request.HTTPRedirectHandler):
         quotedURL = urllib.parse.quote(newURL, "!*'();:@&=+$,/?%#[]-_.~")
         print("Redirect to %s" % quotedURL)
 
-        return urllib.request.Request(quotedURL,
-                       headers=newHeaders,
-                       origin_req_host=req.origin_req_host,
-                       unverifiable=True)
+        if urlInDomainNamespace(quotedURL):
+            return urllib.request.Request(quotedURL,
+                           headers=newHeaders,
+                           origin_req_host=req.origin_req_host,
+                           unverifiable=True)
+        else:
+            return None
 
 
 def main():
